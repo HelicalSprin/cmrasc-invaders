@@ -20,6 +20,15 @@ export class EnemyManager {
   constructor(game) {
     this.game = game;
     this.resetAll();
+
+    this.minionImg = new Image();
+    this.minionImg.src = new URL("../assets/sprites/enemies/minion.png", import.meta.url).href;
+
+    this.minibossImg = new Image();
+    this.minibossImg.src = new URL("../assets/sprites/bosses/miniboss.png", import.meta.url).href;
+
+    this.bossImg = new Image();
+    this.bossImg.src = new URL("../assets/sprites/bosses/boss.png", import.meta.url).href;
   }
 
   resetAll() {
@@ -313,29 +322,40 @@ export class EnemyManager {
 
   renderMinions(ctx) {
     this.enemies.forEach((enemy) => {
-      if (enemy.alive) {
+      if (!enemy.alive) return;
+      if (this.minionImg.complete && this.minionImg.naturalWidth > 0) {
+        ctx.drawImage(this.minionImg, enemy.x - enemy.w / 2, enemy.y - enemy.h / 2, enemy.w, enemy.h);
+      } else {
         drawEmoji(ctx, SYMBOLS.devil, enemy.x, enemy.y, 28);
       }
     });
   }
 
   renderMiniboss(ctx) {
-    if (!this.miniboss || !this.miniboss.alive) {
-      return;
-    }
+    if (!this.miniboss || !this.miniboss.alive) return;
 
     drawHpBar(ctx, this.miniboss.x, this.miniboss.y - this.miniboss.h / 2 - 14, this.miniboss.hp, this.miniboss.maxHp, COLORS.orange, 100);
-    drawEmoji(ctx, SYMBOLS.imp, this.miniboss.x, this.miniboss.y, 48);
+
+    if (this.minibossImg.complete && this.minibossImg.naturalWidth > 0) {
+      ctx.drawImage(this.minibossImg, this.miniboss.x - this.miniboss.w / 2, this.miniboss.y - this.miniboss.h / 2, this.miniboss.w, this.miniboss.h);
+    } else {
+      drawEmoji(ctx, SYMBOLS.imp, this.miniboss.x, this.miniboss.y, 48);
+    }
+
     drawLabel(ctx, "MINIBOSS", this.miniboss.x, this.miniboss.y + this.miniboss.h / 2 + 12, COLORS.orange);
   }
 
   renderBoss(ctx) {
-    if (!this.boss || !this.boss.alive) {
-      return;
-    }
+    if (!this.boss || !this.boss.alive) return;
 
     drawHpBar(ctx, this.boss.x, this.boss.y - this.boss.h / 2 - 18, this.boss.hp, this.boss.maxHp, COLORS.red, 140);
-    drawEmoji(ctx, SYMBOLS.imp, this.boss.x, this.boss.y, 60);
+
+    if (this.bossImg.complete && this.bossImg.naturalWidth > 0) {
+      ctx.drawImage(this.bossImg, this.boss.x - this.boss.w / 2, this.boss.y - this.boss.h / 2, this.boss.w, this.boss.h);
+    } else {
+      drawEmoji(ctx, SYMBOLS.imp, this.boss.x, this.boss.y, 60);
+    }
+
     drawLabel(ctx, "EVIL RENJITHA", this.boss.x, this.boss.y + this.boss.h / 2 + 14, COLORS.red);
   }
 }
