@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>CMRASC Invaders</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+  <main class="game-container" aria-label="CMRASC Invaders">
+    <canvas id="c" aria-label="Game canvas"></canvas>
+
+    <section id="hud" aria-label="Game status">
+      <div class="hv hud-timer" id="h-timer">00:00</div>
+      <div id="lives-row" aria-label="Lives"></div>
+      <div class="hv">W<b id="h-wave">1</b></div>
+    </section>
+
+    <section id="buffbar" aria-label="Active power ups"></section>
+
+    <section id="reloadbar" aria-label="Reload progress">
+      <div id="reload-fill"></div>
+    </section>
+
+    <section id="ctrl" aria-label="Touch controls">
+      <div id="joy-zone">
+        <div id="joy-base">
+          <div id="joy-knob"></div>
+        </div>
+      </div>
+      <div id="fire-zone">
+        <button id="fire-btn" type="button" aria-label="Fire">&#128293;</button>
+      </div>
+    </section>
+
+    <div id="wflash" aria-live="polite"></div>
+
+    <section id="ui" aria-label="Game screens">
+      <article class="screen active" id="scr-start">
+        <div class="big-e" aria-hidden="true">&#128081;</div>
+        <h1 class="title">CMRASC<br>INVADERS</h1>
+        <p class="sub">Save the Cult Mother</p>
+        <p class="story">
+          Evil Renjitha has stolen the Cult Mother's soul and is unleashing her clones.<br><br>
+          Choose your fighter. Stop the invasion. Free Renjitha.
+        </p>
+        <button class="btn gold" type="button" data-screen="scr-intro">PLAY &rarr;</button>
+      </article>
+
+      <article class="screen" id="scr-intro">
+        <div class="big-e" aria-hidden="true">&#128214;</div>
+        <h2 class="title">THE STORY</h2>
+        <p class="story" style="text-align:left; max-width:340px; margin: 0 auto;">
+          In the hallowed halls of <b>CMRASC</b>, the Cult Mother watched over her devoted circle with warmth and wisdom.<br><br>
+          But darkness crept in.<br><br>
+          <b>Evil Renjitha</b> — a rogue clone born from forbidden code — stole the Cult Mother's essence and unleashed an army of demon minions upon the world.<br><br>
+          Now the city trembles. The skies are filled with chaos. Only one warrior from the inner circle can pierce the invasion, reach the Evil Renjitha, and restore the true soul of their beloved leader.<br><br>
+          <span style="color:#ffd600;">The mission is dangerous. The odds are impossible. But the Cult Mother must be freed.</span>
+        </p>
+        <button class="btn gold" type="button" data-screen="scr-pick" style="margin-top:24px;">CHOOSE YOUR FIGHTER &rarr;</button>
+      </article>
+
+      <article class="screen" id="scr-pick">
+        <p class="sub">Choose your fighter</p>
+        <div class="pick-grid">
+          <button class="pcard" type="button" data-player="sachin" aria-label="Start as Sachin">
+            <img class="player-portrait" src="assets/images/players/sachin-card.jpg" alt="Sachin">
+            <span class="pn">Vishruth</span>
+          </button>
+          <button class="pcard" type="button" data-player="vishruth" aria-label="Start as Vishruth">
+            <img class="player-portrait" src="assets/images/players/vishruth-card.jpg" alt="Vishruth">
+            <span class="pn">Sachin</span>
+          </button>
+        </div>
+        <p class="mission-prompt">
+          One must stay.<br>
+          One must venture into the unknown.<br>
+          The fate of the Cult Mother rests in your hands.<br><br>
+          <span>WHO WILL UNDERTAKE THE MISSION?</span>
+        </p>
+        <p class="story help-text">
+          &#128377; Left joystick &middot; &#128293; Right fire &middot; &#128163; Dodge &middot; &#127873; Grab gifts
+        </p>
+      </article>
+
+      <article class="screen" id="scr-over">
+        <div class="big-e" aria-hidden="true">&#128128;</div>
+        <h2 class="title danger-title">GAME OVER</h2>
+        <p class="story">Evil Renjitha wins. The Cult Mother remains trapped.</p>
+        <div class="result-time danger" id="go-time">00:00</div>
+        <p class="hv result-meta">TIME SURVIVED</p>
+        <p class="hv result-wave">WAVE REACHED <b id="go-wave">1</b></p>
+        <div class="btn-row">
+          <button class="btn" type="button" data-screen="scr-pick">RETRY</button>
+          <button class="btn gold" type="button" data-screen="scr-start">HOME</button>
+        </div>
+      </article>
+
+      <article class="screen" id="scr-win">
+        <div class="big-e" aria-hidden="true">&#128737;</div>
+        <h2 class="title">CULT MOTHER<br>FREED!</h2>
+        <p class="story">You defeated Evil Renjitha. The real Renjitha is restored. For now.</p>
+        <div class="result-time" id="win-time">00:00</div>
+        <p class="hv result-meta">TOTAL TIME</p>
+        <div class="btn-row">
+          <button class="btn" type="button" data-screen="scr-pick">PLAY AGAIN</button>
+          <button class="btn gold" type="button" data-screen="scr-start">HOME</button>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

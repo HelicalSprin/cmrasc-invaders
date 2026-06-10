@@ -1,0 +1,379 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #000;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Space Mono", monospace;
+}
+
+button {
+  font: inherit;
+}
+
+.game-container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: #000;
+}
+
+canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+}
+
+#ui {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: rgba(0, 0, 0, 0.93);
+}
+
+.screen {
+  display: none;
+  width: 100%;
+  max-width: 360px;
+  max-height: calc(100vh - 2rem);
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  overflow-y: auto;
+  text-align: center;
+  scrollbar-width: none;
+}
+
+.screen::-webkit-scrollbar {
+  display: none;
+}
+
+.screen.active {
+  display: flex;
+}
+
+.title {
+  font-family: "Bebas Neue", cursive;
+  font-size: 3rem;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  color: #ffd600;
+  text-shadow: 3px 3px 0 #ff2d20;
+}
+
+.danger-title {
+  color: #ff2d20;
+}
+
+.sub {
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  color: rgba(255, 255, 255, 0.4);
+  text-transform: uppercase;
+}
+
+.story {
+  max-width: 290px;
+  font-size: 0.72rem;
+  line-height: 1.75;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.big-e {
+  font-size: 3.5rem;
+  line-height: 1;
+}
+
+.pick-grid {
+  display: grid;
+  width: 100%;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.pcard {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0;
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  color: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.player-portrait {
+  display: block;
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  object-position: center top;
+}
+
+.pn {
+  padding: 0.6rem 0 0.4rem;
+  font-family: "Bebas Neue", cursive;
+  font-size: 1.4rem;
+  letter-spacing: 0.06em;
+  color: #ffd600;
+}
+
+.mission-prompt {
+  max-width: 300px;
+  margin-top: 0.25rem;
+  font-family: "Bebas Neue", cursive;
+  font-size: 1rem;
+  line-height: 1.8;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.mission-prompt span {
+  font-size: 1.1rem;
+  letter-spacing: 0.1em;
+  color: #ffd600;
+}
+
+.help-text {
+  font-size: 0.62rem;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.btn {
+  border: 0;
+  border-radius: 4px;
+  padding: 0.6rem 2rem;
+  background: #ff2d20;
+  color: #fff;
+  cursor: pointer;
+  font-family: "Bebas Neue", cursive;
+  font-size: 1.2rem;
+  letter-spacing: 0.1em;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn.gold {
+  background: #ffd600;
+  color: #0a0a0a;
+}
+
+.btn-row {
+  display: flex;
+  gap: 0.75rem;
+}
+
+#hud {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  display: none;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.9rem;
+  pointer-events: none;
+}
+
+.hv {
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.hv b {
+  color: #ffd600;
+}
+
+.hud-timer {
+  min-width: 52px;
+  font-variant-numeric: tabular-nums;
+}
+
+#lives-row {
+  display: flex;
+  gap: 3px;
+  font-size: 1rem;
+}
+
+#buffbar {
+  position: fixed;
+  top: 38px;
+  left: 0;
+  z-index: 10;
+  display: none;
+  width: 100%;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 0.9rem;
+  pointer-events: none;
+}
+
+.buff-pill {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  padding: 2px 8px;
+  background: rgba(0, 0, 0, 0.6);
+  color: #ffd600;
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+}
+
+#reloadbar {
+  position: fixed;
+  bottom: 140px;
+  left: 50%;
+  z-index: 10;
+  display: none;
+  width: 120px;
+  height: 5px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateX(-50%);
+}
+
+#reload-fill {
+  width: 0%;
+  height: 100%;
+  border-radius: 3px;
+  background: #ffd600;
+}
+
+#ctrl {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  z-index: 10;
+  display: none;
+  width: 100%;
+  height: 130px;
+  pointer-events: none;
+}
+
+#joy-zone,
+#fire-zone {
+  position: absolute;
+  bottom: 0;
+  display: flex;
+  width: 50%;
+  height: 130px;
+  align-items: center;
+  justify-content: center;
+  pointer-events: all;
+}
+
+#joy-zone {
+  left: 0;
+}
+
+#fire-zone {
+  right: 0;
+}
+
+#joy-base {
+  position: relative;
+  display: flex;
+  width: 90px;
+  height: 90px;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+#joy-knob {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 40px;
+  height: 40px;
+  border: 1.5px solid rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+  transform: translate(-50%, -50%);
+}
+
+#fire-btn {
+  display: flex;
+  width: 80px;
+  height: 80px;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #ff2d20;
+  border-radius: 50%;
+  background: rgba(255, 45, 32, 0.25);
+  color: #fff;
+  cursor: pointer;
+  font-size: 1.8rem;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#fire-btn.pressed {
+  background: rgba(255, 45, 32, 0.6);
+}
+
+#wflash {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: 15;
+  color: #ffd600;
+  font-family: "Bebas Neue", cursive;
+  font-size: 2.8rem;
+  line-height: 1.2;
+  letter-spacing: 0.1em;
+  opacity: 0;
+  pointer-events: none;
+  text-align: center;
+  text-shadow: 3px 3px 0 #ff2d20;
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
+}
+
+#wflash.show {
+  opacity: 1;
+}
+
+.result-time {
+  font-family: "Bebas Neue", cursive;
+  font-size: 3.5rem;
+  color: #ffd600;
+}
+
+.result-time.danger {
+  color: #ff2d20;
+}
+
+.result-meta {
+  margin-top: -0.5rem;
+}
+
+.result-wave {
+  margin-top: 0.5rem;
+}
