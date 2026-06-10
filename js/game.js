@@ -225,6 +225,10 @@ export class Game {
       this.powerUps.reloadBonus = Math.min(this.powerUps.reloadBonus + 20, this.powerUps.reloadBase - 6);
     } else if (type === "multi") {
       this.powerUps.bulletCount = Math.min(this.powerUps.bulletCount + 1, 5);
+    } else if (type === "heart") {
+      this.state.lives += 1;
+      this.syncHud();
+      return;
     }
 
     this.ui.updateBuffBar(this.powerUps);

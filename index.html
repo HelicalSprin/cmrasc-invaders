@@ -18,7 +18,10 @@
     <section id="hud" aria-label="Game status">
       <div class="hv hud-timer" id="h-timer">00:00</div>
       <div id="lives-row" aria-label="Lives"></div>
-      <div class="hv">W<b id="h-wave">1</b></div>
+      <div class="hud-right">
+        <div class="hv">W<b id="h-wave">1</b></div>
+        <button id="exit-btn" type="button" aria-label="Exit game">✕</button>
+      </div>
     </section>
 
     <section id="buffbar" aria-label="Active power ups"></section>
@@ -53,30 +56,48 @@
       </article>
 
       <article class="screen" id="scr-intro">
-        <h2 class="title" style="margin-bottom:12px;">THE STORY</h2>
-        <div class="story-panels">
-          <img class="story-panel-img" src="assets/images/story/panel-1.jpeg" alt="Story panel 1">
-          <img class="story-panel-img" src="assets/images/story/panel-2.jpeg" alt="Story panel 2">
-          <img class="story-panel-img" src="assets/images/story/panel-3.jpeg" alt="Story panel 3">
-          <img class="story-panel-img" src="assets/images/story/panel-4.jpeg" alt="Story panel 4">
-          <img class="story-panel-img" src="assets/images/story/panel-5.jpeg" alt="Story panel 5">
-          <img class="story-panel-img" src="assets/images/story/panel-6.jpeg" alt="Story panel 6">
-          <img class="story-panel-img" src="assets/images/story/panel-7.jpeg" alt="Story panel 7">
-          <img class="story-panel-img" src="assets/images/story/panel-8.jpeg" alt="Story panel 8">
+        <h2 class="title" style="margin-bottom:10px;">THE STORY</h2>
+        <div class="slideshow-wrap">
+          <div class="slideshow-track" id="slide-track">
+            <img class="slide-img" src="assets/images/story/panel-1.jpeg" alt="Panel 1">
+            <img class="slide-img" src="assets/images/story/panel-2.jpeg" alt="Panel 2">
+            <img class="slide-img" src="assets/images/story/panel-3.jpeg" alt="Panel 3">
+            <img class="slide-img" src="assets/images/story/panel-4.jpeg" alt="Panel 4">
+            <img class="slide-img" src="assets/images/story/panel-5.jpeg" alt="Panel 5">
+            <img class="slide-img" src="assets/images/story/panel-6.jpeg" alt="Panel 6">
+            <img class="slide-img" src="assets/images/story/panel-7.jpeg" alt="Panel 7">
+            <img class="slide-img" src="assets/images/story/panel-8.jpeg" alt="Panel 8">
+          </div>
+          <div class="slide-dots" id="slide-dots"></div>
         </div>
-        <button class="btn gold" type="button" data-screen="scr-pick" style="margin-top:16px;">CHOOSE YOUR FIGHTER &rarr;</button>
+        <div class="slide-controls">
+          <div class="slide-timer-bar"><div class="slide-timer-fill" id="slide-timer-fill"></div></div>
+          <button class="btn gold" id="slide-next-btn" type="button">NEXT &rarr;</button>
+        </div>
       </article>
+
+      <!-- Quit confirmation modal -->
+      <div id="quit-modal" class="quit-modal" style="display:none;">
+        <div class="quit-box">
+          <p class="quit-title">ABANDON MISSION?</p>
+          <p class="quit-sub">The Cult Mother will remain trapped.</p>
+          <div class="btn-row">
+            <button class="btn" type="button" id="quit-cancel">KEEP FIGHTING</button>
+            <button class="btn gold" type="button" id="quit-confirm">EXIT</button>
+          </div>
+        </div>
+      </div>
 
       <article class="screen" id="scr-pick">
         <p class="sub">Choose your fighter</p>
         <div class="pick-grid">
           <button class="pcard" type="button" data-player="sachin" aria-label="Start as Sachin">
             <img class="player-portrait" src="assets/images/players/sachin-card.jpg" alt="Sachin">
-            <span class="pn">Vishruth</span>
+            <span class="pn">Sachin</span>
           </button>
           <button class="pcard" type="button" data-player="vishruth" aria-label="Start as Vishruth">
             <img class="player-portrait" src="assets/images/players/vishruth-card.jpg" alt="Vishruth">
-            <span class="pn">Sachin</span>
+            <span class="pn">Vishruth</span>
           </button>
         </div>
         <p class="mission-prompt">

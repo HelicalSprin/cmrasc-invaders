@@ -15,6 +15,9 @@ ui.bindNavigation({
   onStart: (profileKey) => {
     game.start(profileKey);
   },
+  onQuit: () => {
+    game.end(false);
+  },
 });
 
 ui.bindControls({

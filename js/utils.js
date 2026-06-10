@@ -8,7 +8,7 @@ export const COLORS = Object.freeze({
 
 export const SYMBOLS = Object.freeze({
   bomb: "\u{1F4A3}",
-  brain: "\u{1F9E0}",
+  heart: "\u2764\uFE0F",
   crown: "\u{1F451}",
   devil: "\u{1F608}",
   fire: "\u{1F525}",
@@ -36,13 +36,13 @@ export const WAVE_DEFINITIONS = Object.freeze([
 export const PLAYER_PROFILES = Object.freeze({
   sachin: {
     id: "sachin",
-    emoji: SYMBOLS.brain,
+    emoji: SYMBOLS.heart,
     color: "#00FF88",
     shipSrc: "assets/sprites/player/sachin-ship.png",
   },
   vishruth: {
     id: "vishruth",
-    emoji: SYMBOLS.lightning,
+    emoji: SYMBOLS.heart,
     color: "#9B30FF",
     shipSrc: "assets/sprites/player/vishruth-ship.png",
   },

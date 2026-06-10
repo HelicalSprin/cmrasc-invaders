@@ -22,21 +22,136 @@ export class UIManager {
       joyBase: this.byId("joy-base"),
       joyKnob: this.byId("joy-knob"),
       fireButton: this.byId("fire-btn"),
+      exitBtn: this.byId("exit-btn"),
+      quitModal: this.byId("quit-modal"),
+      quitCancel: this.byId("quit-cancel"),
+      quitConfirm: this.byId("quit-confirm"),
+      slideTrack: this.byId("slide-track"),
+      slideDots: this.byId("slide-dots"),
+      slideNextBtn: this.byId("slide-next-btn"),
+      slideTimerFill: this.byId("slide-timer-fill"),
     };
+    this._slideIndex = 0;
+    this._slideTotal = 8;
+    this._slideTimer = null;
+    this._slideCountdown = null;
   }
 
   byId(id) {
     return this.document.getElementById(id);
   }
 
-  bindNavigation({ onNavigate, onStart }) {
+  bindNavigation({ onNavigate, onStart, onQuit }) {
     this.document.querySelectorAll("[data-screen]").forEach((button) => {
-      button.addEventListener("click", () => onNavigate(button.dataset.screen));
+      button.addEventListener("click", () => {
+        const target = button.dataset.screen;
+        if (target === "scr-intro") {
+          onNavigate(target);
+          this.startSlideshow();
+        } else {
+          onNavigate(target);
+        }
+      });
     });
 
     this.document.querySelectorAll("[data-player]").forEach((button) => {
       button.addEventListener("click", () => onStart(button.dataset.player));
     });
+
+    // Slideshow next button
+    if (this.elements.slideNextBtn) {
+      this.elements.slideNextBtn.addEventListener("click", () => this.advanceSlide());
+    }
+
+    // Exit / quit modal
+    if (this.elements.exitBtn) {
+      this.elements.exitBtn.addEventListener("click", () => {
+        this.elements.quitModal.style.display = "flex";
+      });
+    }
+    if (this.elements.quitCancel) {
+      this.elements.quitCancel.addEventListener("click", () => {
+        this.elements.quitModal.style.display = "none";
+      });
+    }
+    if (this.elements.quitConfirm) {
+      this.elements.quitConfirm.addEventListener("click", () => {
+        this.elements.quitModal.style.display = "none";
+        onQuit();
+      });
+    }
+  }
+
+  startSlideshow() {
+    this._slideIndex = 0;
+    this._buildDots();
+    this._goToSlide(0);
+  }
+
+  _buildDots() {
+    const dots = this.elements.slideDots;
+    if (!dots) return;
+    dots.innerHTML = "";
+    for (let i = 0; i < this._slideTotal; i++) {
+      const d = this.document.createElement("span");
+      d.className = "slide-dot" + (i === 0 ? " active" : "");
+      dots.appendChild(d);
+    }
+  }
+
+  _goToSlide(index) {
+    clearTimeout(this._slideTimer);
+    clearInterval(this._slideCountdown);
+
+    this._slideIndex = index;
+    const track = this.elements.slideTrack;
+    const fill = this.elements.slideTimerFill;
+    const btn = this.elements.slideNextBtn;
+    const dots = this.elements.slideDots;
+
+    if (!track) return;
+
+    // Move track
+    track.style.transform = `translateX(-${index * 100}%)`;
+
+    // Update dots
+    if (dots) {
+      Array.from(dots.children).forEach((d, i) => {
+        d.classList.toggle("active", i === index);
+      });
+    }
+
+    // Last slide — change button to "FIGHT"
+    const isLast = index === this._slideTotal - 1;
+    if (btn) {
+      btn.textContent = isLast ? "CHOOSE YOUR FIGHTER →" : "NEXT →";
+    }
+
+    // Animate timer bar
+    if (fill) {
+      fill.style.transition = "none";
+      fill.style.width = "0%";
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          fill.style.transition = "width 5s linear";
+          fill.style.width = "100%";
+        });
+      });
+    }
+
+    // Auto-advance after 5s
+    this._slideTimer = setTimeout(() => this.advanceSlide(), 5000);
+  }
+
+  advanceSlide() {
+    clearTimeout(this._slideTimer);
+    const next = this._slideIndex + 1;
+    if (next >= this._slideTotal) {
+      // Go to fighter select
+      this.showScreen("scr-pick");
+    } else {
+      this._goToSlide(next);
+    }
   }
 
   bindControls({ setHorizontal, setFiring, isRunning }) {
@@ -191,9 +306,9 @@ export class UIManager {
     this.elements.wave.textContent = state.wave;
     this.elements.livesRow.innerHTML = "";
 
-    for (let i = 0; i < MAX_LIVES; i += 1) {
+    for (let i = 0; i < Math.max(state.lives, MAX_LIVES); i += 1) {
       const life = this.document.createElement("span");
-      life.textContent = i < state.lives ? player.emoji : SYMBOLS.skull;
+      life.textContent = i < state.lives ? SYMBOLS.heart : SYMBOLS.skull;
       this.elements.livesRow.appendChild(life);
     }
   }

@@ -397,3 +397,150 @@ canvas {
   border: 1px solid rgba(255, 214, 0, 0.25);
   display: block;
 }
+
+/* ── iPhone aspect ratio ── */
+.game-container {
+  max-width: 430px;
+  max-height: 932px;
+  margin: 0 auto;
+  aspect-ratio: 9 / 19.5;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── Slideshow ── */
+.slideshow-wrap {
+  width: 100%;
+  overflow: hidden;
+  border-radius: 10px;
+  border: 1px solid rgba(255,214,0,0.2);
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+
+.slideshow-track {
+  display: flex;
+  width: 800%;
+  height: 100%;
+  transition: transform 0.5s cubic-bezier(0.77, 0, 0.18, 1);
+}
+
+.slide-img {
+  width: 12.5%;
+  height: 100%;
+  object-fit: cover;
+  flex-shrink: 0;
+  display: block;
+}
+
+.slide-dots {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 6px;
+}
+
+.slide-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.3);
+  transition: background 0.3s;
+}
+
+.slide-dot.active {
+  background: #FFD600;
+}
+
+.slide-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding-top: 8px;
+  width: 100%;
+}
+
+.slide-timer-bar {
+  width: 100%;
+  height: 3px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.slide-timer-fill {
+  height: 100%;
+  width: 0%;
+  background: #FFD600;
+  border-radius: 2px;
+}
+
+#scr-intro {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+/* ── Exit button in HUD ── */
+.hud-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#exit-btn {
+  background: rgba(255,45,32,0.15);
+  border: 1px solid rgba(255,45,32,0.4);
+  color: #FF2D20;
+  font-size: 14px;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+/* ── Quit modal ── */
+.quit-modal {
+  position: absolute;
+  inset: 0;
+  background: rgba(5,5,8,0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.quit-box {
+  background: #0e0e18;
+  border: 1px solid rgba(255,214,0,0.35);
+  border-radius: 14px;
+  padding: 28px 24px;
+  text-align: center;
+  max-width: 280px;
+  width: 90%;
+}
+
+.quit-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.6rem;
+  color: #FFD600;
+  margin: 0 0 8px;
+  letter-spacing: 2px;
+}
+
+.quit-sub {
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.55);
+  margin: 0 0 20px;
+  font-family: 'Space Mono', monospace;
+}

@@ -85,7 +85,7 @@ export class EnemyManager {
     this.enemies = enemies;
     this.swarm = {
       dx: 0.3 + (wave - 1) * 0.1,
-      dropY: 6 + (wave - 1) * 1,
+      dropY: 5 + (wave - 1) * 0.6,
     };
 
     this.game.bulletManager.clearEnemy();
@@ -139,11 +139,14 @@ export class EnemyManager {
     const wave = this.game.state.wave;
     const bombChance = 0.01 + wave * 0.012;
     const giftChance = 0.05 - wave * 0.003;
+    const heartChance = 0.018;
     const roll = Math.random();
 
     if (roll < bombChance) {
       this.drops.push({ kind: "bomb", x, y, vy: 2 + wave * 0.15, w: 28, h: 28, alive: true });
-    } else if (roll < bombChance + giftChance) {
+    } else if (roll < bombChance + heartChance) {
+      this.drops.push({ kind: "heart", x, y, vy: 1.5, w: 28, h: 28, alive: true });
+    } else if (roll < bombChance + heartChance + giftChance) {
       const gifts = ["speed", "multi"];
       this.drops.push({
         kind: "gift",
@@ -305,6 +308,19 @@ export class EnemyManager {
 
       if (drop.kind === "bomb") {
         drawEmoji(ctx, SYMBOLS.bomb, drop.x, drop.y, 24);
+        return;
+      }
+
+      if (drop.kind === "heart") {
+        drawEmoji(ctx, SYMBOLS.heart, drop.x, drop.y, 24);
+        ctx.save();
+        ctx.strokeStyle = "#FF4466";
+        ctx.globalAlpha = 0.5;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(drop.x, drop.y, 18, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
         return;
       }
 

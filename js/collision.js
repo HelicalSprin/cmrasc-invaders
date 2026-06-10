@@ -107,6 +107,9 @@ export class CollisionSystem {
 
         if (drop.kind === "bomb") {
           this.game.damagePlayer(COLORS.red, 14);
+        } else if (drop.kind === "heart") {
+          this.game.applyGift("heart");
+          this.game.addBurst(player.x, player.y, "#FF4466", 10);
         } else {
           this.game.applyGift(drop.sub);
           this.game.addBurst(player.x, player.y, COLORS.gold, 10);
