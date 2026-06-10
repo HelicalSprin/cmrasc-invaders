@@ -47,7 +47,8 @@ export class UIManager {
         const target = button.dataset.screen;
         if (target === "scr-intro") {
           onNavigate(target);
-          this.startSlideshow();
+          // Wait for screen to be visible and painted before starting slideshow
+          requestAnimationFrame(() => requestAnimationFrame(() => this.startSlideshow()));
         } else {
           onNavigate(target);
         }
@@ -113,7 +114,7 @@ export class UIManager {
     if (!track || !wrap) return;
 
     // Use wrapper pixel width so each slide = exactly one panel
-    const slideWidth = wrap.offsetWidth;
+    const slideWidth = wrap.offsetWidth || window.innerWidth;
     track.style.transform = `translateX(-${index * slideWidth}px)`;
 
     // Update dots
