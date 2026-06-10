@@ -22,13 +22,13 @@ export class EnemyManager {
     this.resetAll();
 
     this.minionImg = new Image();
-    this.minionImg.src = new URL("../assets/sprites/enemies/minion.png", import.meta.url).href;
+    this.minionImg.src = "assets/sprites/enemies/minion.png";
 
     this.minibossImg = new Image();
-    this.minibossImg.src = new URL("../assets/sprites/bosses/miniboss.png", import.meta.url).href;
+    this.minibossImg.src = "assets/sprites/bosses/miniboss.png";
 
     this.bossImg = new Image();
-    this.bossImg.src = new URL("../assets/sprites/bosses/boss.png", import.meta.url).href;
+    this.bossImg.src = "assets/sprites/bosses/boss.png";
   }
 
   resetAll() {

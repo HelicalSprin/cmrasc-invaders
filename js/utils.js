@@ -38,13 +38,13 @@ export const PLAYER_PROFILES = Object.freeze({
     id: "sachin",
     emoji: SYMBOLS.brain,
     color: "#00FF88",
-    shipSrc: new URL("../assets/sprites/player/sachin-ship.png", import.meta.url).href,
+    shipSrc: "assets/sprites/player/sachin-ship.png",
   },
   vishruth: {
     id: "vishruth",
     emoji: SYMBOLS.lightning,
     color: "#9B30FF",
-    shipSrc: new URL("../assets/sprites/player/vishruth-ship.png", import.meta.url).href,
+    shipSrc: "assets/sprites/player/vishruth-ship.png",
   },
 });
 
