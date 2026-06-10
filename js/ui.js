@@ -104,15 +104,17 @@ export class UIManager {
     clearInterval(this._slideCountdown);
 
     this._slideIndex = index;
+    const wrap = this.elements.slideTrack && this.elements.slideTrack.parentElement;
     const track = this.elements.slideTrack;
     const fill = this.elements.slideTimerFill;
     const btn = this.elements.slideNextBtn;
     const dots = this.elements.slideDots;
 
-    if (!track) return;
+    if (!track || !wrap) return;
 
-    // Move track
-    track.style.transform = `translateX(-${index * 100}%)`;
+    // Use wrapper pixel width so each slide = exactly one panel
+    const slideWidth = wrap.offsetWidth;
+    track.style.transform = `translateX(-${index * slideWidth}px)`;
 
     // Update dots
     if (dots) {
