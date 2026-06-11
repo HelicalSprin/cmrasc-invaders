@@ -124,23 +124,23 @@ canvas {
   padding: 10px 0 6px;
 }
 
-/* Slideshow viewport — clips to one image */
+/* Viewport clips to exactly one image */
 .story-viewport {
   width: 100%;
   flex: 1;
   min-height: 0;
-  overflow: hidden;
-  position: relative;
-}
-
-/* Track slides horizontally */
-.story-track {
+  overflow-x: scroll;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
   display: flex;
   flex-direction: row;
-  height: 100%;
-  transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+  scrollbar-width: none;
 }
 
+.story-viewport::-webkit-scrollbar { display: none; }
+
+/* Each image snaps to fill the viewport exactly */
 .story-img {
   flex: 0 0 100%;
   width: 100%;
@@ -148,9 +148,11 @@ canvas {
   object-fit: contain;
   object-position: center;
   display: block;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
 }
 
-/* Bottom controls row */
+/* Bottom controls */
 .story-controls {
   flex-shrink: 0;
   width: 100%;
@@ -174,7 +176,6 @@ canvas {
   background: #ffd600;
   border-radius: 2px;
   width: 0%;
-  transition: width 5s linear;
 }
 
 .story-dots {

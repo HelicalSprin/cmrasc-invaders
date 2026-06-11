@@ -74,7 +74,6 @@ export class UIManager {
     const s = this._slide;
     s.index = 0;
 
-    // Build dots
     const dotsEl = this.byId("story-dots");
     if (dotsEl) {
       dotsEl.innerHTML = "";
@@ -85,6 +84,10 @@ export class UIManager {
       }
     }
 
+    // Reset scroll to start
+    const vp = this.byId("story-viewport");
+    if (vp) vp.scrollLeft = 0;
+
     this._slideGo(0);
   }
 
@@ -92,17 +95,16 @@ export class UIManager {
     clearTimeout(this._slide.timer);
     this._slide.index = index;
 
-    const track = this.byId("story-track");
-    const viewport = this.byId("story-viewport");
+    const vp = this.byId("story-viewport");
     const fill = this.byId("story-fill");
     const nextBtn = this.byId("story-next-btn");
     const dotsEl = this.byId("story-dots");
 
-    if (!track || !viewport) return;
-
-    // Pixel-based shift using actual rendered viewport width
-    const w = viewport.offsetWidth;
-    track.style.transform = `translateX(-${index * w}px)`;
+    // Scroll the snap container to the right panel
+    if (vp) {
+      const w = vp.offsetWidth;
+      vp.scrollTo({ left: index * w, behavior: "smooth" });
+    }
 
     // Dots
     if (dotsEl) {
@@ -115,20 +117,18 @@ export class UIManager {
     if (nextBtn) {
       nextBtn.textContent = index === this._slide.total - 1
         ? "CHOOSE YOUR FIGHTER →"
-        : `NEXT → (${index + 1}/${this._slide.total})`;
+        : `NEXT  ${index + 1} / ${this._slide.total}`;
     }
 
-    // Progress bar animation
+    // Progress bar
     if (fill) {
       fill.style.transition = "none";
       fill.style.width = "0%";
-      // force reflow then animate
       void fill.offsetWidth;
       fill.style.transition = "width 5s linear";
       fill.style.width = "100%";
     }
 
-    // Auto-advance after 5s
     this._slide.timer = setTimeout(() => this._slideAdvance(), 5000);
   }
 
