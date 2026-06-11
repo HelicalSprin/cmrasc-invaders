@@ -85,7 +85,7 @@ export class EnemyManager {
     this.enemies = enemies;
     this.swarm = {
       dx: 0.3 + (wave - 1) * 0.1,
-      dropY: 5 + (wave - 1) * 0.6,
+      dropY: wave * 8,
     };
 
     this.game.bulletManager.clearEnemy();

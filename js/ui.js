@@ -27,6 +27,7 @@ export class UIManager {
       quitCancel: this.byId("quit-cancel"),
       quitConfirm: this.byId("quit-confirm"),
     };
+    this._slide = { index: 0, total: 8, timer: null };
   }
 
   byId(id) {
@@ -44,6 +45,12 @@ export class UIManager {
       button.addEventListener("click", () => onStart(button.dataset.player));
     });
 
+    // Slideshow next button
+    const nextBtn = this.byId("story-next-btn");
+    if (nextBtn) {
+      nextBtn.addEventListener("click", () => this._slideAdvance());
+    }
+
     // Exit / quit modal
     if (this.elements.exitBtn) {
       this.elements.exitBtn.addEventListener("click", () => {
@@ -60,6 +67,78 @@ export class UIManager {
         this.elements.quitModal.style.display = "none";
         onQuit();
       });
+    }
+  }
+
+  _slideInit() {
+    const s = this._slide;
+    s.index = 0;
+
+    // Build dots
+    const dotsEl = this.byId("story-dots");
+    if (dotsEl) {
+      dotsEl.innerHTML = "";
+      for (let i = 0; i < s.total; i++) {
+        const d = this.document.createElement("span");
+        d.className = "story-dot" + (i === 0 ? " active" : "");
+        dotsEl.appendChild(d);
+      }
+    }
+
+    this._slideGo(0);
+  }
+
+  _slideGo(index) {
+    clearTimeout(this._slide.timer);
+    this._slide.index = index;
+
+    const track = this.byId("story-track");
+    const viewport = this.byId("story-viewport");
+    const fill = this.byId("story-fill");
+    const nextBtn = this.byId("story-next-btn");
+    const dotsEl = this.byId("story-dots");
+
+    if (!track || !viewport) return;
+
+    // Pixel-based shift using actual rendered viewport width
+    const w = viewport.offsetWidth;
+    track.style.transform = `translateX(-${index * w}px)`;
+
+    // Dots
+    if (dotsEl) {
+      Array.from(dotsEl.children).forEach((d, i) => {
+        d.classList.toggle("active", i === index);
+      });
+    }
+
+    // Button label
+    if (nextBtn) {
+      nextBtn.textContent = index === this._slide.total - 1
+        ? "CHOOSE YOUR FIGHTER →"
+        : `NEXT → (${index + 1}/${this._slide.total})`;
+    }
+
+    // Progress bar animation
+    if (fill) {
+      fill.style.transition = "none";
+      fill.style.width = "0%";
+      // force reflow then animate
+      void fill.offsetWidth;
+      fill.style.transition = "width 5s linear";
+      fill.style.width = "100%";
+    }
+
+    // Auto-advance after 5s
+    this._slide.timer = setTimeout(() => this._slideAdvance(), 5000);
+  }
+
+  _slideAdvance() {
+    clearTimeout(this._slide.timer);
+    const next = this._slide.index + 1;
+    if (next >= this._slide.total) {
+      this.showScreen("scr-pick");
+    } else {
+      this._slideGo(next);
     }
   }
 
@@ -161,6 +240,11 @@ export class UIManager {
     this.byId(id).classList.add("active");
     this.elements.ui.style.display = "flex";
     this.hideGameChrome();
+
+    if (id === "scr-intro") {
+      // Wait two frames so the screen is fully rendered and offsetWidth is correct
+      requestAnimationFrame(() => requestAnimationFrame(() => this._slideInit()));
+    }
   }
 
   showGame() {
