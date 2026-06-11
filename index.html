@@ -20,7 +20,7 @@
       <div id="lives-row" aria-label="Lives"></div>
       <div class="hud-right">
         <div class="hv">W<b id="h-wave">1</b></div>
-        <button id="exit-btn" type="button" aria-label="Exit game">✕</button>
+        <button id="exit-btn" type="button" aria-label="Exit game">&#10005;</button>
       </div>
     </section>
 
@@ -43,7 +43,19 @@
 
     <div id="wflash" aria-live="polite"></div>
 
+    <div id="quit-modal" class="quit-modal" style="display:none;">
+      <div class="quit-box">
+        <p class="quit-title">ABANDON MISSION?</p>
+        <p class="quit-sub">The Cult Mother will remain trapped.</p>
+        <div class="btn-row">
+          <button class="btn" type="button" id="quit-cancel">KEEP FIGHTING</button>
+          <button class="btn gold" type="button" id="quit-confirm">EXIT</button>
+        </div>
+      </div>
+    </div>
+
     <section id="ui" aria-label="Game screens">
+
       <article class="screen active" id="scr-start">
         <div class="big-e" aria-hidden="true">&#128081;</div>
         <h1 class="title">CMRASC<br>INVADERS</h1>
@@ -56,37 +68,19 @@
       </article>
 
       <article class="screen" id="scr-intro">
-        <h2 class="title" style="margin-bottom:10px;">THE STORY</h2>
-        <div class="slideshow-wrap">
-          <div class="slideshow-track" id="slide-track">
-            <img class="slide-img" src="assets/images/story/panel-1.jpeg" alt="Panel 1">
-            <img class="slide-img" src="assets/images/story/panel-2.jpeg" alt="Panel 2">
-            <img class="slide-img" src="assets/images/story/panel-3.jpeg" alt="Panel 3">
-            <img class="slide-img" src="assets/images/story/panel-4.jpeg" alt="Panel 4">
-            <img class="slide-img" src="assets/images/story/panel-5.jpeg" alt="Panel 5">
-            <img class="slide-img" src="assets/images/story/panel-6.jpeg" alt="Panel 6">
-            <img class="slide-img" src="assets/images/story/panel-7.jpeg" alt="Panel 7">
-            <img class="slide-img" src="assets/images/story/panel-8.jpeg" alt="Panel 8">
-          </div>
-          <div class="slide-dots" id="slide-dots"></div>
+        <h2 class="intro-title">THE STORY</h2>
+        <div class="story-scroll">
+          <img class="story-img" src="assets/images/story/panel-1.jpeg" alt="Panel 1">
+          <img class="story-img" src="assets/images/story/panel-2.jpeg" alt="Panel 2">
+          <img class="story-img" src="assets/images/story/panel-3.jpeg" alt="Panel 3">
+          <img class="story-img" src="assets/images/story/panel-4.jpeg" alt="Panel 4">
+          <img class="story-img" src="assets/images/story/panel-5.jpeg" alt="Panel 5">
+          <img class="story-img" src="assets/images/story/panel-6.jpeg" alt="Panel 6">
+          <img class="story-img" src="assets/images/story/panel-7.jpeg" alt="Panel 7">
+          <img class="story-img" src="assets/images/story/panel-8.jpeg" alt="Panel 8">
         </div>
-        <div class="slide-controls">
-          <div class="slide-timer-bar"><div class="slide-timer-fill" id="slide-timer-fill"></div></div>
-          <button class="btn gold" id="slide-next-btn" type="button">NEXT &rarr;</button>
-        </div>
+        <button class="btn gold story-btn" type="button" data-screen="scr-pick">CHOOSE YOUR FIGHTER &rarr;</button>
       </article>
-
-      <!-- Quit confirmation modal -->
-      <div id="quit-modal" class="quit-modal" style="display:none;">
-        <div class="quit-box">
-          <p class="quit-title">ABANDON MISSION?</p>
-          <p class="quit-sub">The Cult Mother will remain trapped.</p>
-          <div class="btn-row">
-            <button class="btn" type="button" id="quit-cancel">KEEP FIGHTING</button>
-            <button class="btn gold" type="button" id="quit-confirm">EXIT</button>
-          </div>
-        </div>
-      </div>
 
       <article class="screen" id="scr-pick">
         <p class="sub">Choose your fighter</p>
@@ -135,6 +129,7 @@
           <button class="btn gold" type="button" data-screen="scr-start">HOME</button>
         </div>
       </article>
+
     </section>
   </main>
 

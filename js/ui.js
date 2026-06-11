@@ -26,15 +26,7 @@ export class UIManager {
       quitModal: this.byId("quit-modal"),
       quitCancel: this.byId("quit-cancel"),
       quitConfirm: this.byId("quit-confirm"),
-      slideTrack: this.byId("slide-track"),
-      slideDots: this.byId("slide-dots"),
-      slideNextBtn: this.byId("slide-next-btn"),
-      slideTimerFill: this.byId("slide-timer-fill"),
     };
-    this._slideIndex = 0;
-    this._slideTotal = 8;
-    this._slideTimer = null;
-    this._slideCountdown = null;
   }
 
   byId(id) {
@@ -44,25 +36,13 @@ export class UIManager {
   bindNavigation({ onNavigate, onStart, onQuit }) {
     this.document.querySelectorAll("[data-screen]").forEach((button) => {
       button.addEventListener("click", () => {
-        const target = button.dataset.screen;
-        if (target === "scr-intro") {
-          onNavigate(target);
-          // Wait for screen to be visible and painted before starting slideshow
-          requestAnimationFrame(() => requestAnimationFrame(() => this.startSlideshow()));
-        } else {
-          onNavigate(target);
-        }
+        onNavigate(button.dataset.screen);
       });
     });
 
     this.document.querySelectorAll("[data-player]").forEach((button) => {
       button.addEventListener("click", () => onStart(button.dataset.player));
     });
-
-    // Slideshow next button
-    if (this.elements.slideNextBtn) {
-      this.elements.slideNextBtn.addEventListener("click", () => this.advanceSlide());
-    }
 
     // Exit / quit modal
     if (this.elements.exitBtn) {
@@ -80,80 +60,6 @@ export class UIManager {
         this.elements.quitModal.style.display = "none";
         onQuit();
       });
-    }
-  }
-
-  startSlideshow() {
-    this._slideIndex = 0;
-    this._buildDots();
-    this._goToSlide(0);
-  }
-
-  _buildDots() {
-    const dots = this.elements.slideDots;
-    if (!dots) return;
-    dots.innerHTML = "";
-    for (let i = 0; i < this._slideTotal; i++) {
-      const d = this.document.createElement("span");
-      d.className = "slide-dot" + (i === 0 ? " active" : "");
-      dots.appendChild(d);
-    }
-  }
-
-  _goToSlide(index) {
-    clearTimeout(this._slideTimer);
-    clearInterval(this._slideCountdown);
-
-    this._slideIndex = index;
-    const wrap = this.elements.slideTrack && this.elements.slideTrack.parentElement;
-    const track = this.elements.slideTrack;
-    const fill = this.elements.slideTimerFill;
-    const btn = this.elements.slideNextBtn;
-    const dots = this.elements.slideDots;
-
-    if (!track || !wrap) return;
-
-    // Use wrapper pixel width so each slide = exactly one panel
-    const slideWidth = wrap.offsetWidth || window.innerWidth;
-    track.style.transform = `translateX(-${index * slideWidth}px)`;
-
-    // Update dots
-    if (dots) {
-      Array.from(dots.children).forEach((d, i) => {
-        d.classList.toggle("active", i === index);
-      });
-    }
-
-    // Last slide — change button to "FIGHT"
-    const isLast = index === this._slideTotal - 1;
-    if (btn) {
-      btn.textContent = isLast ? "CHOOSE YOUR FIGHTER →" : "NEXT →";
-    }
-
-    // Animate timer bar
-    if (fill) {
-      fill.style.transition = "none";
-      fill.style.width = "0%";
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          fill.style.transition = "width 5s linear";
-          fill.style.width = "100%";
-        });
-      });
-    }
-
-    // Auto-advance after 5s
-    this._slideTimer = setTimeout(() => this.advanceSlide(), 5000);
-  }
-
-  advanceSlide() {
-    clearTimeout(this._slideTimer);
-    const next = this._slideIndex + 1;
-    if (next >= this._slideTotal) {
-      // Go to fighter select
-      this.showScreen("scr-pick");
-    } else {
-      this._goToSlide(next);
     }
   }
 
@@ -180,9 +86,7 @@ export class UIManager {
 
     const joyEnd = () => {
       this.elements.joyKnob.style.transform = "translate(-50%, -50%)";
-      if (isRunning()) {
-        setHorizontal(0);
-      }
+      if (isRunning()) setHorizontal(0);
       joyId = null;
     };
 
@@ -206,10 +110,7 @@ export class UIManager {
     const endJoyTouch = (event) => {
       event.preventDefault();
       for (const touch of event.changedTouches) {
-        if (touch.identifier === joyId) {
-          joyEnd();
-          break;
-        }
+        if (touch.identifier === joyId) { joyEnd(); break; }
       }
     };
 
@@ -221,9 +122,7 @@ export class UIManager {
       if (fireId === null) {
         const touch = event.changedTouches[0];
         fireId = touch.identifier;
-        if (isRunning()) {
-          setFiring(true);
-        }
+        if (isRunning()) setFiring(true);
         this.elements.fireButton.classList.add("pressed");
       }
     }, { passive: false });
@@ -244,31 +143,16 @@ export class UIManager {
     this.elements.fireButton.addEventListener("touchcancel", endFireTouch, { passive: false });
 
     this.document.addEventListener("keydown", (event) => {
-      if (!isRunning()) {
-        return;
-      }
-      if (event.key === "ArrowLeft" || event.key === "a") {
-        setHorizontal(-1);
-      }
-      if (event.key === "ArrowRight" || event.key === "d") {
-        setHorizontal(1);
-      }
-      if (event.key === " " || event.key === "ArrowUp") {
-        event.preventDefault();
-        setFiring(true);
-      }
+      if (!isRunning()) return;
+      if (event.key === "ArrowLeft" || event.key === "a") setHorizontal(-1);
+      if (event.key === "ArrowRight" || event.key === "d") setHorizontal(1);
+      if (event.key === " " || event.key === "ArrowUp") { event.preventDefault(); setFiring(true); }
     });
 
     this.document.addEventListener("keyup", (event) => {
-      if (event.key === "ArrowLeft" || event.key === "a") {
-        setHorizontal(0);
-      }
-      if (event.key === "ArrowRight" || event.key === "d") {
-        setHorizontal(0);
-      }
-      if (event.key === " " || event.key === "ArrowUp") {
-        setFiring(false);
-      }
+      if (event.key === "ArrowLeft" || event.key === "a") setHorizontal(0);
+      if (event.key === "ArrowRight" || event.key === "d") setHorizontal(0);
+      if (event.key === " " || event.key === "ArrowUp") setFiring(false);
     });
   }
 
@@ -304,7 +188,7 @@ export class UIManager {
   }
 
   updateHud(game) {
-    const { state, player } = game;
+    const { state } = game;
     this.elements.timer.textContent = formatTime(state.elapsed);
     this.elements.wave.textContent = state.wave;
     this.elements.livesRow.innerHTML = "";
@@ -345,7 +229,6 @@ export class UIManager {
       this.showScreen("scr-win");
       return;
     }
-
     this.elements.gameOverTime.textContent = timeText;
     this.elements.gameOverWave.textContent = game.state.wave;
     this.showScreen("scr-over");
