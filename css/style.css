@@ -23,24 +23,52 @@ body {
 
 button { font: inherit; }
 
+/* ─────────────────────────────────────────────
+   VIRTUAL RESOLUTION / LETTERBOX SYSTEM
+   Base resolution: 390 × 844  (iPhone 14 viewport)
+   Everything inside .game-shell is rendered at
+   this logical size; CSS transform scales it to fit
+   any physical screen while preserving aspect ratio.
+   Black bars appear outside if needed.
+───────────────────────────────────────────── */
+
+/* Outer wrapper fills the whole physical screen */
+.game-wrapper {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+  overflow: hidden;
+}
+
+/* The logical 390×844 game shell — never changes size in CSS,
+   only gets a CSS transform scale applied by JS */
 .game-container {
   position: relative;
-  width: 100vw;
-  height: 100vh;
+  width: 390px;
+  height: 844px;
   overflow: hidden;
   background: #000;
+  /* transform-origin stays center */
+  transform-origin: center center;
+  flex-shrink: 0;
 }
 
 canvas {
   display: block;
-  width: 100%;
-  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 390px;
+  height: 844px;
   touch-action: none;
 }
 
 /* ── UI overlay ── */
 #ui {
-  position: fixed;
+  position: absolute;
   inset: 0;
   z-index: 20;
   display: flex;
@@ -54,12 +82,13 @@ canvas {
 .screen {
   display: none;
   width: 100%;
-  max-width: 400px;
-  height: calc(100vh - 2rem);
+  max-width: 370px;
+  height: calc(844px - 2rem);
   flex-direction: column;
   align-items: center;
   gap: 0.75rem;
   text-align: center;
+  overflow: hidden;
 }
 
 .screen.active { display: flex; }
@@ -107,7 +136,7 @@ canvas {
 
 /* ── Story / Intro screen ── */
 #scr-intro {
-  justify-content: space-between;
+  justify-content: flex-start;
   padding: 0;
   gap: 0;
   overflow: hidden;
@@ -122,34 +151,41 @@ canvas {
   text-shadow: 2px 2px 0 #ff2d20;
   flex-shrink: 0;
   padding: 10px 0 6px;
+  width: 100%;
+  text-align: center;
 }
 
-/* Viewport clips to exactly one image */
+/*
+  JS STATE-MACHINE SLIDESHOW
+  Only one .story-img is visible at a time.
+  All images are stacked; the active one is shown via JS toggling .slide-active.
+  No scroll-snap, no scrollTo — eliminates bleed on all mobile browsers.
+*/
 .story-viewport {
   width: 100%;
   flex: 1;
   min-height: 0;
-  overflow-x: scroll;
-  overflow-y: hidden;
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
-  display: flex;
-  flex-direction: row;
-  scrollbar-width: none;
+  position: relative;
+  overflow: hidden;
 }
 
-.story-viewport::-webkit-scrollbar { display: none; }
-
-/* Each image snaps to fill the viewport exactly */
 .story-img {
-  flex: 0 0 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
   object-fit: contain;
   object-position: center;
   display: block;
-  scroll-snap-align: start;
-  scroll-snap-stop: always;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.story-img.slide-active {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 /* Bottom controls */
@@ -291,8 +327,13 @@ canvas {
 }
 
 /* ── HUD ── */
+/*
+  All HUD elements use position:absolute so they are anchored
+  within the 390×844 logical game container, not the physical viewport.
+  This ensures they never shift regardless of screen size.
+*/
 #hud {
-  position: fixed;
+  position: absolute;
   top: 0;
   left: 0;
   z-index: 10;
@@ -349,7 +390,7 @@ canvas {
 
 /* ── Buff bar ── */
 #buffbar {
-  position: fixed;
+  position: absolute;
   top: 38px;
   left: 0;
   z-index: 10;
@@ -371,9 +412,15 @@ canvas {
   letter-spacing: 0.08em;
 }
 
-/* ── Reload bar ── */
+/* ── Reload bar ──
+   Anchored at bottom: 175px inside the 844px logical space.
+   Player ship y = 844 - 160 = 684px center.
+   Ship half-height ≈ 32px, so ship bottom ≈ 716px.
+   Reload bar top = 844 - 175 - 4 = 665px, which is ABOVE ship bottom.
+   Safe gap maintained on all screens via letterbox.
+*/
 #reloadbar {
-  position: fixed;
+  position: absolute;
   bottom: 175px;
   left: 50%;
   z-index: 10;
@@ -394,7 +441,7 @@ canvas {
 
 /* ── Touch controls ── */
 #ctrl {
-  position: fixed;
+  position: absolute;
   bottom: 0;
   left: 0;
   z-index: 10;
@@ -461,7 +508,7 @@ canvas {
 
 /* ── Wave flash ── */
 #wflash {
-  position: fixed;
+  position: absolute;
   top: 50%;
   left: 50%;
   z-index: 15;
@@ -494,7 +541,7 @@ canvas {
 
 /* ── Quit modal ── */
 .quit-modal {
-  position: fixed;
+  position: absolute;
   inset: 0;
   background: rgba(5,5,8,0.88);
   display: flex;

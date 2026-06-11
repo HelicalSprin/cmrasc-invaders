@@ -1,50 +1,54 @@
+// ─── Logical canvas dimensions (single source of truth) ───────────────────
+export const LOGICAL_W = 390;
+export const LOGICAL_H = 844;
+
 export const COLORS = Object.freeze({
-  background: "#050508",
-  gold: "#FFD600",
-  red: "#FF2D20",
-  orange: "#FF9900",
-  whiteStar: "rgba(255,255,255,0.55)",
+  background : "#050508",
+  gold       : "#FFD600",
+  red        : "#FF2D20",
+  orange     : "#FF9900",
+  whiteStar  : "rgba(255,255,255,0.55)",
 });
 
 export const SYMBOLS = Object.freeze({
-  bomb: "\u{1F4A3}",
-  heart: "\u2764\uFE0F",
-  crown: "\u{1F451}",
-  devil: "\u{1F608}",
-  fire: "\u{1F525}",
-  gift: "\u{1F381}",
-  imp: "\u{1F47F}",
-  lightning: "\u26A1",
-  skull: "\u{1F480}",
+  bomb      : "\u{1F4A3}",
+  heart     : "\u2764\uFE0F",
+  crown     : "\u{1F451}",
+  devil     : "\u{1F608}",
+  fire      : "\u{1F525}",
+  gift      : "\u{1F381}",
+  imp       : "\u{1F47F}",
+  lightning : "\u26A1",
+  skull     : "\u{1F480}",
 });
 
 export const MAX_LIVES = 3;
 
 export const WAVE_DEFINITIONS = Object.freeze([
-  { type: "minion", rows: 1 },
-  { type: "minion", rows: 2 },
-  { type: "miniboss" },
-  { type: "minion", rows: 3 },
-  { type: "minion", rows: 4 },
-  { type: "miniboss" },
-  { type: "minion", rows: 5 },
-  { type: "minion", rows: 6 },
-  { type: "miniboss" },
-  { type: "boss" },
+  { type: "minion",   rows: 1 },
+  { type: "minion",   rows: 2 },
+  { type: "miniboss"          },
+  { type: "minion",   rows: 3 },
+  { type: "minion",   rows: 4 },
+  { type: "miniboss"          },
+  { type: "minion",   rows: 5 },
+  { type: "minion",   rows: 6 },
+  { type: "miniboss"          },
+  { type: "boss"              },
 ]);
 
 export const PLAYER_PROFILES = Object.freeze({
   sachin: {
-    id: "sachin",
-    emoji: SYMBOLS.heart,
-    color: "#00FF88",
-    shipSrc: "assets/sprites/player/sachin-ship.png",
+    id      : "sachin",
+    emoji   : "\u2764\uFE0F",
+    color   : "#00FF88",
+    shipSrc : "assets/sprites/player/sachin-ship.png",
   },
   vishruth: {
-    id: "vishruth",
-    emoji: SYMBOLS.heart,
-    color: "#9B30FF",
-    shipSrc: "assets/sprites/player/vishruth-ship.png",
+    id      : "vishruth",
+    emoji   : "\u2764\uFE0F",
+    color   : "#9B30FF",
+    shipSrc : "assets/sprites/player/vishruth-ship.png",
   },
 });
 
@@ -64,10 +68,10 @@ export function formatTime(ms = 0) {
 
 export function createStars(count = 90) {
   return Array.from({ length: count }, () => ({
-    x: Math.random() * 1200,
-    y: Math.random() * 2400,
-    r: Math.random() * 1.4 + 0.3,
-    spd: 0.3 + Math.random() * 0.5,
+    x   : Math.random() * LOGICAL_W,
+    y   : Math.random() * LOGICAL_H,
+    r   : Math.random() * 1.4 + 0.3,
+    spd : 0.3 + Math.random() * 0.5,
   }));
 }
 
@@ -76,13 +80,12 @@ export function createParticleBurst(particles, x, y, color, count = 10) {
     const angle = Math.random() * Math.PI * 2;
     const speed = 1.5 + Math.random() * 4;
     particles.push({
-      x,
-      y,
-      vx: Math.cos(angle) * speed,
-      vy: Math.sin(angle) * speed,
-      life: 40 + Math.random() * 20,
-      maxLife: 60,
-      r: 2 + Math.random() * 3,
+      x, y,
+      vx      : Math.cos(angle) * speed,
+      vy      : Math.sin(angle) * speed,
+      life    : 40 + Math.random() * 20,
+      maxLife : 60,
+      r       : 2 + Math.random() * 3,
       color,
     });
   }
@@ -90,17 +93,17 @@ export function createParticleBurst(particles, x, y, color, count = 10) {
 
 export function drawEmoji(ctx, symbol, x, y, size, alpha = 1) {
   ctx.save();
-  ctx.globalAlpha = alpha;
-  ctx.font = `${size}px serif`;
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
+  ctx.globalAlpha   = alpha;
+  ctx.font          = `${size}px serif`;
+  ctx.textAlign     = "center";
+  ctx.textBaseline  = "middle";
   ctx.fillText(symbol, x, y);
   ctx.restore();
 }
 
 export function drawLabel(ctx, text, x, y, color) {
   ctx.save();
-  ctx.font = "700 9px Space Mono, monospace";
+  ctx.font      = "700 9px Space Mono, monospace";
   ctx.fillStyle = color;
   ctx.textAlign = "center";
   ctx.fillText(text, x, y);
@@ -114,6 +117,6 @@ export function drawHpBar(ctx, centerX, y, hp, maxHp, color, width) {
   ctx.fillStyle = color;
   ctx.fillRect(left, y, width * (hp / maxHp), 6);
   ctx.strokeStyle = "rgba(255,255,255,0.2)";
-  ctx.lineWidth = 1;
+  ctx.lineWidth   = 1;
   ctx.strokeRect(left, y, width, 6);
 }
