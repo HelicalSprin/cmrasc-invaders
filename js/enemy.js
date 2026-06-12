@@ -220,11 +220,19 @@ export class EnemyManager {
 
     if (hitWall) {
       this.swarm.dx *= -1;
+
+      // Hard cap: never let any minion drop past (playerY - 80px safety gap).
+      // Clamp each enemy after the drop so they can never bleed into the player zone.
+      const playerY = this.game.player ? this.game.player.y : this.game.canvas.height - 160;
+      const maxAllowedY = playerY - 80;
+
       alive.forEach((enemy) => {
-        enemy.y += this.swarm.dropY;
+        enemy.y = Math.min(enemy.y + this.swarm.dropY, maxAllowedY);
       });
-      // REBALANCED: danger threshold is lower — more breathing room
-      if (alive.some((enemy) => enemy.y > this.game.canvas.height - 180)) {
+
+      // Trigger game-over only once the swarm is ALREADY pinned at the ceiling —
+      // meaning there is literally no space left between them and the player.
+      if (alive.every((enemy) => enemy.y >= maxAllowedY - 2)) {
         this.game.end(false);
       }
     }
