@@ -62,7 +62,10 @@ export class CollisionSystem {
         if (miniboss.hp <= 0) {
           miniboss.alive = false;
           this.game.addBurst(miniboss.x, miniboss.y, COLORS.orange, 25);
-          this.game.schedule(() => this.game.waveOver(), 800);
+
+          // Award permanent random upgrade, then advance wave after a beat
+          this.game.awardMinibossUpgrade();
+          this.game.schedule(() => this.game.waveOver(), 1800);
         }
       }
     });

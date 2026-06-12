@@ -50,13 +50,14 @@ export class BulletManager {
 
     powerUps.reloadTimer = this.getReloadDuration(powerUps);
     const offsets = this.getShotOffsets(powerUps.bulletCount);
+    const speedBonus = powerUps.bulletSpeedBonus || 0;
     offsets.forEach((offsetX) => {
       this.playerBullets.push({
         x: player.x + offsetX,
         y: player.y - PLAYER_BULLET.startYOffset,
         w: PLAYER_BULLET.width,
         h: PLAYER_BULLET.height,
-        speed: PLAYER_BULLET.speed,
+        speed: PLAYER_BULLET.speed + speedBonus,
         vx: offsetX * 0.07,
       });
     });
@@ -98,7 +99,8 @@ export class BulletManager {
     });
   }
 
-  updatePlayerBullets() {
+  // Accepts powerUps so bulletSpeedBonus is reflected on newly spawned bullets
+  updatePlayerBullets(powerUps) {
     this.playerBullets = this.playerBullets.filter((bullet) => bullet.y > -30);
     this.playerBullets.forEach((bullet) => {
       bullet.y -= bullet.speed;

@@ -23,46 +23,32 @@ body {
 
 button { font: inherit; }
 
-/* ─────────────────────────────────────────────
-   VIRTUAL RESOLUTION / LETTERBOX SYSTEM
-   Base resolution: 390 × 844  (iPhone 14 viewport)
-   Everything inside .game-shell is rendered at
-   this logical size; CSS transform scales it to fit
-   any physical screen while preserving aspect ratio.
-   Black bars appear outside if needed.
-───────────────────────────────────────────── */
+/* ── VIRTUAL RESOLUTION / LETTERBOX SYSTEM ──
+   The game always renders in a fixed 390×844 logical viewport (iPhone 14 Pro = canonical 9:19.5).
+   CSS transform scales the entire container to fit any screen while preserving the aspect ratio.
+   On wide screens it letterboxes; on short screens it pillarboxes.  Nothing inside this box
+   ever needs to know the real viewport size — all positions are in logical px. */
 
-/* Outer wrapper fills the whole physical screen */
-.game-wrapper {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #000;
-  overflow: hidden;
+:root {
+  --game-w: 390;
+  --game-h: 844;
 }
 
-/* The logical 390×844 game shell — never changes size in CSS,
-   only gets a CSS transform scale applied by JS */
 .game-container {
   position: relative;
-  width: 390px;
-  height: 844px;
+  /* fixed logical size — JS canvas also uses these */
+  width: calc(var(--game-w) * 1px);
+  height: calc(var(--game-h) * 1px);
   overflow: hidden;
   background: #000;
-  /* transform-origin stays center */
+  /* scaling is set by JS on resize */
   transform-origin: center center;
-  flex-shrink: 0;
 }
 
 canvas {
   display: block;
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 390px;
-  height: 844px;
+  width: 100%;
+  height: 100%;
   touch-action: none;
 }
 
@@ -82,13 +68,12 @@ canvas {
 .screen {
   display: none;
   width: 100%;
-  max-width: 370px;
-  height: calc(844px - 2rem);
+  max-width: 400px;
+  height: calc(100% - 2rem);
   flex-direction: column;
   align-items: center;
   gap: 0.75rem;
   text-align: center;
-  overflow: hidden;
 }
 
 .screen.active { display: flex; }
@@ -136,7 +121,7 @@ canvas {
 
 /* ── Story / Intro screen ── */
 #scr-intro {
-  justify-content: flex-start;
+  justify-content: space-between;
   padding: 0;
   gap: 0;
   overflow: hidden;
@@ -151,41 +136,34 @@ canvas {
   text-shadow: 2px 2px 0 #ff2d20;
   flex-shrink: 0;
   padding: 10px 0 6px;
-  width: 100%;
-  text-align: center;
 }
 
-/*
-  JS STATE-MACHINE SLIDESHOW
-  Only one .story-img is visible at a time.
-  All images are stacked; the active one is shown via JS toggling .slide-active.
-  No scroll-snap, no scrollTo — eliminates bleed on all mobile browsers.
-*/
+/* Viewport clips to exactly one image */
 .story-viewport {
   width: 100%;
   flex: 1;
   min-height: 0;
-  position: relative;
-  overflow: hidden;
+  overflow-x: scroll;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  display: flex;
+  flex-direction: row;
+  scrollbar-width: none;
 }
 
+.story-viewport::-webkit-scrollbar { display: none; }
+
+/* Each image snaps to fill the viewport exactly */
 .story-img {
-  position: absolute;
-  top: 0;
-  left: 0;
+  flex: 0 0 100%;
   width: 100%;
   height: 100%;
   object-fit: contain;
   object-position: center;
   display: block;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  pointer-events: none;
-}
-
-.story-img.slide-active {
-  opacity: 1;
-  pointer-events: auto;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
 }
 
 /* Bottom controls */
@@ -327,11 +305,6 @@ canvas {
 }
 
 /* ── HUD ── */
-/*
-  All HUD elements use position:absolute so they are anchored
-  within the 390×844 logical game container, not the physical viewport.
-  This ensures they never shift regardless of screen size.
-*/
 #hud {
   position: absolute;
   top: 0;
@@ -412,22 +385,17 @@ canvas {
   letter-spacing: 0.08em;
 }
 
-/* ── Reload bar ──
-   Anchored at bottom: 175px inside the 844px logical space.
-   Player ship y = 844 - 160 = 684px center.
-   Ship half-height ≈ 32px, so ship bottom ≈ 716px.
-   Reload bar top = 844 - 175 - 4 = 665px, which is ABOVE ship bottom.
-   Safe gap maintained on all screens via letterbox.
-*/
+/* ── Reload bar — slim strip BELOW the ship (ctrl zone top edge - ship height - gap) ── */
 #reloadbar {
   position: absolute;
-  bottom: 175px;
+  /* sits at the very top of the touch control zone, 8px below the ship's bottom edge */
+  bottom: 138px;
   left: 50%;
   z-index: 10;
   display: none;
-  width: 80px;
-  height: 4px;
-  border-radius: 3px;
+  width: 56px;
+  height: 3px;
+  border-radius: 2px;
   background: rgba(255,255,255,0.1);
   transform: translateX(-50%);
 }
@@ -435,7 +403,7 @@ canvas {
 #reload-fill {
   width: 0%;
   height: 100%;
-  border-radius: 3px;
+  border-radius: 2px;
   background: #ffd600;
 }
 
@@ -539,7 +507,7 @@ canvas {
 .result-meta { margin-top: -0.5rem; }
 .result-wave { margin-top: 0.5rem; }
 
-/* ── Quit modal ── */
+/* ── Quit modal — fully contained, buttons always visible ── */
 .quit-modal {
   position: absolute;
   inset: 0;
@@ -554,10 +522,14 @@ canvas {
   background: #0e0e18;
   border: 1px solid rgba(255,214,0,0.35);
   border-radius: 14px;
-  padding: 28px 24px;
+  padding: 28px 24px 24px;
   text-align: center;
   max-width: 280px;
-  width: 90%;
+  width: 88%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
 }
 
 .quit-title {
@@ -573,4 +545,74 @@ canvas {
   color: rgba(255,255,255,0.55);
   margin: 0 0 20px;
   font-family: 'Space Mono', monospace;
+}
+
+/* Force the button row to stay inside the box */
+.quit-box .btn-row {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.quit-box .btn-row .btn {
+  flex: 1;
+  min-width: 0;
+  padding: 0.6rem 0.5rem;
+  font-size: 1rem;
+  white-space: nowrap;
+}
+
+/* ── Mini-boss upgrade toast ── */
+#upgrade-toast {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 50;
+  transform: translate(-50%, -50%);
+  background: rgba(10,10,20,0.96);
+  border: 1.5px solid #FFD600;
+  border-radius: 14px;
+  padding: 20px 28px 18px;
+  text-align: center;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  pointer-events: none;
+  min-width: 220px;
+}
+
+#upgrade-toast.show {
+  display: flex;
+}
+
+#upgrade-toast .ut-label {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.22em;
+  color: rgba(255,255,255,0.45);
+  text-transform: uppercase;
+}
+
+#upgrade-toast .ut-icon {
+  font-size: 2.2rem;
+  line-height: 1;
+}
+
+#upgrade-toast .ut-name {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.45rem;
+  letter-spacing: 0.1em;
+  color: #FFD600;
+  line-height: 1.1;
+}
+
+#upgrade-toast .ut-desc {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.6rem;
+  color: rgba(255,255,255,0.55);
+  line-height: 1.5;
 }

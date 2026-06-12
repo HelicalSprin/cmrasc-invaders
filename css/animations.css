@@ -31,6 +31,17 @@
   animation: wave-flash 1400ms ease-out;
 }
 
+/* Upgrade toast fade-in / fade-out */
+#upgrade-toast {
+  transition: opacity 300ms ease;
+  opacity: 0;
+}
+
+#upgrade-toast.show {
+  opacity: 1;
+  animation: toast-pop 2200ms ease forwards;
+}
+
 @keyframes screen-in {
   from {
     opacity: 0;
@@ -55,4 +66,12 @@
   100% {
     text-shadow: 3px 3px 0 #ff2d20;
   }
+}
+
+@keyframes toast-pop {
+  0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.88); }
+  12%  { opacity: 1; transform: translate(-50%, -50%) scale(1.04); }
+  20%  { opacity: 1; transform: translate(-50%, -50%) scale(1);    }
+  75%  { opacity: 1; transform: translate(-50%, -50%) scale(1);    }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(0.95); }
 }

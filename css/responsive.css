@@ -1,37 +1,57 @@
-/*
-  Responsive.css — no media queries needed for the game viewport itself,
-  because the virtual-resolution letterbox (applied in JS) handles all
-  screen sizes uniformly.
+/* Responsive tweaks — the letterbox system handles scaling,
+   these only adjust text/portrait sizes within the logical 390×844 box */
 
-  These rules only handle edge cases for devices where the logical shell
-  content (menu screens) needs micro-adjustments within the fixed 390px width.
-*/
-
-/* Very short screens: compress portrait height so character select fits */
-@media (max-height: 700px) {
-  .player-portrait {
-    height: 160px;
+@media (max-width: 420px) {
+  .title {
+    font-size: 2.65rem;
   }
+
+  .player-portrait {
+    height: 172px;
+  }
+
+  .mission-prompt {
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-height: 720px) {
+  .screen {
+    gap: 0.75rem;
+  }
+
   .big-e {
     font-size: 2.8rem;
   }
+
+  .player-portrait {
+    height: 148px;
+  }
+
   .story {
     line-height: 1.55;
   }
+
   .result-time {
     font-size: 3rem;
   }
 }
 
 @media (max-height: 560px) {
-  .player-portrait {
-    height: 120px;
+  #ui {
+    justify-content: flex-start;
+    padding-top: 0.75rem;
   }
+
   .title {
-    font-size: 2.5rem;
+    font-size: 2.25rem;
   }
+
+  .player-portrait {
+    height: 118px;
+  }
+
   .mission-prompt {
     line-height: 1.45;
-    font-size: 0.9rem;
   }
 }
