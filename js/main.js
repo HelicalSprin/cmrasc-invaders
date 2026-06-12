@@ -3,26 +3,34 @@ import { Game } from "./game.js";
 import { UIManager } from "./ui.js";
 
 const canvas = document.getElementById("c");
-const ui     = new UIManager(document);
-const audio  = new AudioManager();
-const game   = new Game({ canvas, ui, audio });
+const ui    = new UIManager(document);
+const audio = new AudioManager();
+const game  = new Game({ canvas, ui, audio });
 
-// ── Unlock Web Audio on the very first user gesture ──
-const unlockOnce = () => {
-  audio.unlock().then(() => audio.startMenuMusic());
-  window.removeEventListener("touchstart", unlockOnce, true);
-  window.removeEventListener("mousedown",  unlockOnce, true);
-  window.removeEventListener("keydown",    unlockOnce, true);
+// ── Start menu music on the very first tap/click — synchronously, no await ──
+let audioStarted = false;
+const startAudioOnce = () => {
+  if (audioStarted) return;
+  audioStarted = true;
+  audio.startMenuMusic();
 };
-window.addEventListener("touchstart", unlockOnce, { capture: true, passive: true });
-window.addEventListener("mousedown",  unlockOnce, { capture: true });
-window.addEventListener("keydown",    unlockOnce, { capture: true });
+document.addEventListener("touchstart", startAudioOnce, { once: true, passive: true });
+document.addEventListener("mousedown",  startAudioOnce, { once: true });
+document.addEventListener("keydown",    startAudioOnce, { once: true });
+
+// ── Mute button ──
+const muteBtn = document.getElementById("mute-btn");
+if (muteBtn) {
+  muteBtn.addEventListener("click", () => {
+    const muted = audio.toggleMute();
+    muteBtn.textContent = muted ? "🔇" : "🔊";
+  });
+}
 
 ui.bindNavigation({
   onNavigate: (screenId) => {
     game.stop();
     ui.showScreen(screenId);
-    // Return to menu music whenever we're back on a non-game screen
     audio.startMenuMusic();
   },
   onStart: (profileKey) => {
@@ -38,7 +46,7 @@ ui.bindNavigation({
 });
 
 ui.bindControls({
-  setHorizontal: (value) => game.setHorizontal(value),
-  setFiring:     (value) => game.setFiring(value),
-  isRunning:     ()      => game.isRunning(),
+  setHorizontal: (v) => game.setHorizontal(v),
+  setFiring:     (v) => game.setFiring(v),
+  isRunning:     ()  => game.isRunning(),
 });
