@@ -45,7 +45,7 @@ export class BulletManager {
 
   fireFromPlayer(player, powerUps) {
     if (powerUps.reloadTimer > 0) {
-      return;
+      return false;
     }
 
     powerUps.reloadTimer = this.getReloadDuration(powerUps);
@@ -61,6 +61,7 @@ export class BulletManager {
         vx: offsetX * 0.07,
       });
     });
+    return true;
   }
 
   getShotOffsets(count) {

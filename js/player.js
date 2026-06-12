@@ -57,7 +57,7 @@ export class Player {
   }
 
   shoot(bulletManager, powerUps) {
-    bulletManager.fireFromPlayer(this, powerUps);
+    return bulletManager.fireFromPlayer(this, powerUps);
   }
 
   render(ctx) {

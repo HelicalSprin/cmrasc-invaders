@@ -196,7 +196,8 @@ export class Game {
     this.bulletManager.tickReload(this.powerUps);
 
     if (this.input.firing) {
-      this.player.shoot(this.bulletManager, this.powerUps);
+      const didShoot = this.player.shoot(this.bulletManager, this.powerUps);
+      if (didShoot) this.audio.playShot();
     }
 
     this.ui.updateReloadBar(this.bulletManager.getReloadPercent(this.powerUps));
@@ -273,6 +274,7 @@ export class Game {
     this.player.activateShield();
     this.state.lives -= 1;
     this.addBurst(this.player.x, this.player.y, color, particleCount);
+    this.audio.playHit();
     this.syncHud();
 
     if (this.state.lives <= 0) {
@@ -287,10 +289,11 @@ export class Game {
       this.powerUps.bulletCount = Math.min(this.powerUps.bulletCount + 1, 5);
     } else if (type === "heart") {
       this.state.lives += 1;
+      this.audio.playPickup();
       this.syncHud();
       return;
     }
-
+    this.audio.playPickup();
     this.ui.updateBuffBar(this.powerUps);
   }
 
@@ -300,6 +303,7 @@ export class Game {
     upgrade.apply(this.powerUps);
     this.ui.updateBuffBar(this.powerUps);
     this.ui.showUpgradeToast(upgrade);
+    this.audio.playUpgrade();
   }
 
   waveOver() {
@@ -363,6 +367,8 @@ export class Game {
     this.clearTimers();
     this.input.firing = false;
     this.audio.stopMusic();
+    if (won) this.audio.playWin();
+    else this.audio.playGameOver();
     this.ui.showResult(won, this);
   }
 }
