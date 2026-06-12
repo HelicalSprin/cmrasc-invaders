@@ -1,180 +1,124 @@
-/**
- * AudioManager
- *
- * Handles two looping music tracks (menu / gameplay) and five SFX.
- * Web Audio requires a user-gesture to unlock the AudioContext on mobile.
- * We defer all playback until the first interaction then drain a queue.
- */
 export class AudioManager {
   constructor() {
-    this._ctx = null;
-    this._unlocked = false;
-    this._queue = [];          // callbacks waiting for unlock
-    this._buffers = {};        // decoded AudioBuffer cache
-    this._musicNode = null;    // currently playing music BufferSourceNode
-    this._musicGain = null;    // gain node for music
-    this._sfxGain = null;      // gain node for sfx
-    this._shootCooldown = 0;   // frame counter to rate-limit shoot sfx
+    this._ctx        = null;
+    this._buffers    = {};       // key → decoded AudioBuffer
+    this._musicNode  = null;
+    this._musicGain  = null;
+    this._sfxGain    = null;
+    this._ready      = false;    // true once ctx exists + all buffers decoded
+    this._queue      = [];       // fns waiting for ready
 
-    // SFX shoot fires every frame while held — throttle to avoid distortion
-    this._SHOOT_THROTTLE_MS = 160;
     this._lastShootTime = 0;
+    this._SHOOT_THROTTLE_MS = 150;
 
     this._FILES = {
-      menuMusic:  "assets/audio/menu-loop.mp3",
-      gameMusic:  "assets/audio/music-loop.mp3",
-      shoot:      "assets/audio/sfx-shoot.wav",
-      hit:        "assets/audio/sfx-hit.wav",
-      pickup:     "assets/audio/sfx-pickup.wav",
-      gameover:   "assets/audio/sfx-gameover.wav",
-      win:        "assets/audio/sfx-win.wav",
+      menuMusic : "assets/audio/menu-loop.mp3",
+      gameMusic : "assets/audio/music-loop.mp3",
+      shoot     : "assets/audio/sfx-shoot.wav",
+      hit       : "assets/audio/sfx-hit.wav",
+      pickup    : "assets/audio/sfx-pickup.wav",
+      gameover  : "assets/audio/sfx-gameover.wav",
+      win       : "assets/audio/sfx-win.wav",
     };
-
-    this._preload();
   }
 
-  // ── Internal: initialise AudioContext (safe to call multiple times) ──
-  _initCtx() {
-    if (this._ctx) return;
+  // Called once on first user gesture from main.js
+  async unlock() {
+    if (this._ready) return;
+
+    // 1. Create context
     try {
       this._ctx = new (window.AudioContext || window.webkitAudioContext)();
-      this._musicGain = this._ctx.createGain();
-      this._musicGain.gain.value = 0.45;
-      this._musicGain.connect(this._ctx.destination);
-
-      this._sfxGain = this._ctx.createGain();
-      this._sfxGain.gain.value = 0.7;
-      this._sfxGain.connect(this._ctx.destination);
     } catch (e) {
-      console.warn("AudioContext unavailable:", e);
+      console.warn("Web Audio not supported:", e);
+      return;
     }
-  }
 
-  // ── Preload: fetch & decode all files in the background ──
-  _preload() {
-    // Use a temporary context just for decoding (avoids the gesture requirement
-    // for fetch/decode on most browsers). We swap to the real ctx on unlock.
-    Object.entries(this._FILES).forEach(([key, url]) => {
-      fetch(url)
-        .then(r => r.arrayBuffer())
-        .then(buf => {
-          // Decode lazily on first real ctx creation
-          this._rawBuffers = this._rawBuffers || {};
-          this._rawBuffers[key] = buf;
-        })
-        .catch(() => {}); // audio failure is non-fatal
-    });
-  }
+    // 2. Resume (needed on iOS)
+    try { await this._ctx.resume(); } catch (_) {}
 
-  // ── Decode raw ArrayBuffers once the AudioContext exists ──
-  async _decodeAll() {
-    if (!this._ctx || !this._rawBuffers) return;
-    const pending = Object.entries(this._rawBuffers).filter(([k]) => !this._buffers[k]);
-    await Promise.all(pending.map(async ([key, raw]) => {
-      try {
-        this._buffers[key] = await this._ctx.decodeAudioData(raw.slice(0));
-      } catch (e) {}
-    }));
-  }
+    // 3. Gain nodes
+    this._musicGain = this._ctx.createGain();
+    this._musicGain.gain.value = 0.45;
+    this._musicGain.connect(this._ctx.destination);
 
-  // ── Must be called on first user gesture (tap / keydown) ──
-  async unlock() {
-    if (this._unlocked) return;
-    this._initCtx();
-    if (!this._ctx) return;
+    this._sfxGain = this._ctx.createGain();
+    this._sfxGain.gain.value = 0.8;
+    this._sfxGain.connect(this._ctx.destination);
 
-    try {
-      await this._ctx.resume();
-    } catch (e) {}
+    // 4. Fetch + decode everything in parallel
+    await Promise.all(
+      Object.entries(this._FILES).map(async ([key, url]) => {
+        try {
+          const res = await fetch(url);
+          const raw = await res.arrayBuffer();
+          this._buffers[key] = await this._ctx.decodeAudioData(raw);
+        } catch (e) {
+          console.warn(`Audio load failed [${key}]:`, e);
+        }
+      })
+    );
 
-    await this._decodeAll();
-    this._unlocked = true;
-
-    // Drain queued calls
+    // 5. Mark ready and flush queue
+    this._ready = true;
     this._queue.forEach(fn => fn());
     this._queue = [];
   }
 
   _whenReady(fn) {
-    if (this._unlocked) fn();
+    if (this._ready) fn();
     else this._queue.push(fn);
   }
 
-  // ── Play a one-shot SFX ──
-  _playSfx(key, { playbackRate = 1 } = {}) {
+  _playSfx(key, rate = 1) {
     this._whenReady(() => {
       const buf = this._buffers[key];
-      if (!buf || !this._ctx) return;
+      if (!buf) return;
       const src = this._ctx.createBufferSource();
       src.buffer = buf;
-      src.playbackRate.value = playbackRate;
+      src.playbackRate.value = rate;
       src.connect(this._sfxGain);
-      src.start();
+      src.start(0);
     });
   }
 
-  // ── Start a looping music track (stops the previous one first) ──
   _startMusic(key) {
     this._whenReady(() => {
-      this._stopMusicNow();
+      this._stopMusicNode();
       const buf = this._buffers[key];
-      if (!buf || !this._ctx) return;
+      if (!buf) return;
       const src = this._ctx.createBufferSource();
       src.buffer = buf;
       src.loop = true;
       src.connect(this._musicGain);
-      src.start();
+      src.start(0);
       this._musicNode = src;
     });
   }
 
-  _stopMusicNow() {
+  _stopMusicNode() {
     if (this._musicNode) {
-      try { this._musicNode.stop(); } catch (e) {}
+      try { this._musicNode.stop(); } catch (_) {}
       this._musicNode = null;
     }
   }
 
   // ── Public API ──
 
-  startMenuMusic() {
-    this._startMusic("menuMusic");
-  }
+  startMenuMusic()  { this._startMusic("menuMusic"); }
+  startGameMusic()  { this._startMusic("gameMusic"); }
+  stopMusic()       { this._stopMusicNode(); }
 
-  startGameMusic() {
-    this._startMusic("gameMusic");
-  }
-
-  stopMusic() {
-    this._stopMusicNow();
-  }
-
-  /** Call every game frame while firing — internally throttled */
   playShot() {
     const now = performance.now();
     if (now - this._lastShootTime < this._SHOOT_THROTTLE_MS) return;
     this._lastShootTime = now;
-    this._playSfx("shoot", { playbackRate: 0.95 + Math.random() * 0.1 });
+    this._playSfx("shoot", 0.95 + Math.random() * 0.1);
   }
 
-  playHit() {
-    this._playSfx("hit");
-  }
-
-  playPickup() {
-    this._playSfx("pickup");
-  }
-
-  playUpgrade() {
-    // Reuse pickup sfx with a higher pitch for the upgrade moment
-    this._playSfx("pickup", { playbackRate: 1.4 });
-  }
-
-  playGameOver() {
-    this._playSfx("gameover");
-  }
-
-  playWin() {
-    this._playSfx("win");
-  }
+  playHit()      { this._playSfx("hit"); }
+  playPickup()   { this._playSfx("pickup"); }
+  playUpgrade()  { this._playSfx("pickup", 1.5); }
+  playGameOver() { this._playSfx("gameover"); }
+  playWin()      { this._playSfx("win"); }
 }
