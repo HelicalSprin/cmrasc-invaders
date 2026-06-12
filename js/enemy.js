@@ -84,10 +84,9 @@ export class EnemyManager {
 
     this.enemies = enemies;
     this.swarm = {
-      // REBALANCED: base speed drastically reduced; gentle per-wave scaling
-      dx: 0.12 + (wave - 1) * 0.04,
-      // REBALANCED: drop distance per wall-bounce is much smaller
-      dropY: 3 + wave * 1.5,
+      // Wave 1: dx≈0.04, dropY≈2px. Very gentle ramp per wave.
+      dx: 0.04 + (wave - 1) * 0.013,
+      dropY: 1 + wave * 0.5,
     };
 
     this.game.bulletManager.clearEnemy();
@@ -104,8 +103,8 @@ export class EnemyManager {
     this.miniboss = {
       x: this.game.canvas.width / 2,
       y: 110,
-      w: 56,
-      h: 56,
+      w: 90,
+      h: 90,
       hp,
       maxHp: hp,
       dx: 0.8 + wave * 0.1,
@@ -124,8 +123,8 @@ export class EnemyManager {
     this.boss = {
       x: this.game.canvas.width / 2,
       y: 120,
-      w: 72,
-      h: 72,
+      w: 120,
+      h: 120,
       hp,
       maxHp: hp,
       phase: 1,
